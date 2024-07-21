@@ -4,8 +4,10 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from .serializers import CustomSerializer
 
+
 class CustomTokenLoginApiView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         serializer = CustomSerializer(data=request.data)
         if serializer.is_valid():

@@ -5,7 +5,6 @@ from .managers import CustomUserManager
 # Create your models here.
 
 
-
 class CustomUser(AbstractBaseUser):
     username = models.CharField(max_length=150, unique=True)
     is_active = models.BooleanField(default=True)
@@ -18,15 +17,13 @@ class CustomUser(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
-
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
-
 
     def __str__(self):
         return self.username
 
     class Meta:
-        db_table = 'users'
+        db_table = "users"

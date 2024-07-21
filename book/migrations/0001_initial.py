@@ -15,36 +15,68 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='BookModel',
+            name="BookModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('author', models.CharField(max_length=200)),
-                ('genre', models.CharField(max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("author", models.CharField(max_length=200)),
+                ("genre", models.CharField(max_length=50)),
             ],
             options={
-                'db_table': 'books',
-                'unique_together': {('title', 'author', 'genre')},
+                "db_table": "books",
+                "unique_together": {("title", "author", "genre")},
             },
         ),
         migrations.CreateModel(
-            name='ReviewModel',
+            name="ReviewModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rating', models.IntegerField()),
-                ('book', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='book.bookmodel')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("rating", models.IntegerField()),
+                (
+                    "book",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="book.bookmodel"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'reviews',
+                "db_table": "reviews",
             },
         ),
         migrations.AddConstraint(
-            model_name='reviewmodel',
-            constraint=models.CheckConstraint(check=models.Q(('rating__gte', 1), ('rating__lte', 5)), name='rating_range'),
+            model_name="reviewmodel",
+            constraint=models.CheckConstraint(
+                check=models.Q(("rating__gte", 1), ("rating__lte", 5)),
+                name="rating_range",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='reviewmodel',
-            constraint=models.UniqueConstraint(fields=('book', 'user'), name='unique_user_book_review'),
+            model_name="reviewmodel",
+            constraint=models.UniqueConstraint(
+                fields=("book", "user"), name="unique_user_book_review"
+            ),
         ),
     ]
