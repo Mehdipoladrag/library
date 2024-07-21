@@ -1,10 +1,10 @@
 from django.urls import path
-from .views import TestView
+from .views import BookListApiView, BookSearchByGenreApiView
 
 
 
 
 urlpatterns = [
-    path('test/', TestView.as_view()),
-
+    path('list/', BookListApiView.as_view(), name='BookList'),
+    path('books', BookSearchByGenreApiView.as_view(), name='BooksByGenre'),
 ]
