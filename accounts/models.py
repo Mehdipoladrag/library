@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser
 from .managers import CustomUserManager
 
 # Create your models here.
@@ -8,7 +8,6 @@ from .managers import CustomUserManager
 
 class CustomUser(AbstractBaseUser):
     username = models.CharField(max_length=150, unique=True)
-    password = models.CharField(max_length=128)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

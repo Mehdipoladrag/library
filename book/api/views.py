@@ -6,6 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.pagination import PageNumberPagination
 
+from accounts.models import CustomUser
+from book.models import ReviewModel, BookModel
 class BookListApiView(APIView):
     """
         BookListApiView provides an API 
@@ -137,3 +139,4 @@ class DeleteReviewApiView(APIView):
                 return Response({'message': 'Review deleted successfully'}, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
