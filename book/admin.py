@@ -2,5 +2,12 @@ from django.contrib import admin
 from .models import BookModel, ReviewModel
 # Register your models here.
 
-admin.site.register(BookModel)
-admin.site.register(ReviewModel)
+
+@admin.register(BookModel)
+class BookAdmin(admin.ModelAdmin):
+    list_display = ['title', 'author', 'genre']
+
+
+@admin.register(ReviewModel)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['book', 'user', 'rating']

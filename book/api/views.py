@@ -5,9 +5,10 @@ from django.db import connection
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.pagination import PageNumberPagination
-
+from django.db.models import Count
 from accounts.models import CustomUser
 from book.models import ReviewModel, BookModel
+
 class BookListApiView(APIView):
     """
         BookListApiView provides an API 
@@ -140,3 +141,75 @@ class DeleteReviewApiView(APIView):
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
+            
+class UpdateReviewApiView(APIView):
+    """
+        View to update a review for a book by a user.
+    """
+
+    def put(self, request, *args, **kwargs):
+        book_id = request.data.get('book_id')
+        user_id = request.data.get('user_id')
+        rating = request.data.get('rating')
+
+        if not book_id or not user_id or not rating:
+            return Response({'error': 'book_id, user_id, and rating are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            rating = int(rating)
+        except ValueError:
+            return Response({'error': 'Rating must be an integer'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if rating < 1 or rating > 5:
+            return Response({'error': 'Rating must be between 1 and 5'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            book = BookModel.objects.get(pk=book_id)
+        except BookModel.DoesNotExist:
+            return Response({'error': 'Book not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            user = CustomUser.objects.get(pk=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            review = ReviewModel.objects.get(book=book, user=user)
+            review.rating = rating
+            review.save()
+            return Response({'message': 'Review updated successfully'}, status=status.HTTP_200_OK)
+        except ReviewModel.DoesNotExist:
+            return Response({'error': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class RecommendBooksApiView(APIView):
+    """
+        View to recommend books based on the user's favorite genre.
+    """
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+
+        # Find the most frequently rated genre by the user
+        favoritegenre = (ReviewModel.objects
+                          .filter(user=user)
+                          .values('book__genre')
+                          .annotate(count=Count('book__genre'))
+                          .order_by('-count')
+                          .first())
+
+        if not favoritegenre:
+            return Response({'error': 'there is not enogh data about you'}, status=status.HTTP_404_NOT_FOUND)
+        favoritegenre = favoritegenre['book__genre']
+        suggest_book = BookModel.objects.filter(genre=favoritegenre)
+
+        if not suggest_book:
+            return Response({'error': 'No books found for the favorite genre'}, status=status.HTTP_404_NOT_FOUND)
+
+        books_data = [{'id': book.id, 'title': book.title, 'author': book.author, 'genre': book.genre} for book in suggest_book]
+
+        return Response({'suggest_book': books_data}, status=status.HTTP_200_OK)
